@@ -93,12 +93,7 @@ export class BadRequestError extends AppError {
  */
 export class DatabaseError extends AppError {
   constructor(message: string = "Database operation failed", details?: any) {
-    super(
-      message,
-      HttpStatus.INTERNAL_SERVER_ERROR,
-      ErrorCode.DATABASE_ERROR,
-      details
-    );
+    super(message, HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.DATABASE_ERROR, details);
     Object.setPrototypeOf(this, DatabaseError.prototype);
   }
 }
@@ -108,12 +103,7 @@ export class DatabaseError extends AppError {
  */
 export class InternalServerError extends AppError {
   constructor(message: string = "Internal server error", details?: any) {
-    super(
-      message,
-      HttpStatus.INTERNAL_SERVER_ERROR,
-      ErrorCode.INTERNAL_ERROR,
-      details
-    );
+    super(message, HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR, details);
     Object.setPrototypeOf(this, InternalServerError.prototype);
   }
 }

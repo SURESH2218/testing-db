@@ -17,9 +17,7 @@ export interface JWTPayload {
  * Using simple base64 encoding for dev mode
  * In production, use proper JWT library
  */
-export const generateToken = async (
-  payload: Omit<JWTPayload, "iat" | "exp">
-): Promise<string> => {
+export const generateToken = async (payload: Omit<JWTPayload, "iat" | "exp">): Promise<string> => {
   const tokenData = {
     ...payload,
     iat: Math.floor(Date.now() / 1000),

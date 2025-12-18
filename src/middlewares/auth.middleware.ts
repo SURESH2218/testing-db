@@ -34,10 +34,7 @@ export const authenticate = async (context: any) => {
 
     return context;
   } catch (error) {
-    if (
-      error instanceof UnauthorizedError ||
-      error instanceof NotFoundError
-    ) {
+    if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
       throw error;
     }
     throw new UnauthorizedError("Authentication failed");
@@ -53,9 +50,7 @@ export const requireOnboarding = async (context: any) => {
   }
 
   if (!context.user.onboardingComplete) {
-    throw new UnauthorizedError(
-      "Please complete onboarding before accessing this resource"
-    );
+    throw new UnauthorizedError("Please complete onboarding before accessing this resource");
   }
 
   return context;
@@ -70,4 +65,3 @@ export const authPlugin = (app: any) => {
     return context;
   });
 };
-

@@ -1,9 +1,6 @@
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { db } from "../db";
-import {
-  otpVerifications,
-  type OtpVerification,
-} from "../db/schema/otp.schema";
+import { otpVerifications, type OtpVerification } from "../db/schema/otp.schema";
 import { users, type User } from "../db/schema/users.schema";
 import { env } from "../config/env.config";
 import {
@@ -43,10 +40,7 @@ export const sendOTP = async (phoneNumber: string) => {
     .select()
     .from(otpVerifications)
     .where(
-      and(
-        eq(otpVerifications.phoneNumber, formattedPhone),
-        gte(otpVerifications.createdAt, since)
-      )
+      and(eq(otpVerifications.phoneNumber, formattedPhone), gte(otpVerifications.createdAt, since))
     );
 
   if (recentOTPs.length >= env.OTP_MAX_REQUESTS) {
@@ -85,11 +79,7 @@ export const sendOTP = async (phoneNumber: string) => {
 /**
  * Verify OTP and return user token
  */
-export const verifyOTPAndLogin = async (
-  phoneNumber: string,
-  otp: string,
-  otpId: string
-) => {
+export const verifyOTPAndLogin = async (phoneNumber: string, otp: string, otpId: string) => {
   // Format phone number
   const formattedPhone = formatPhoneNumber(phoneNumber);
 
@@ -118,9 +108,7 @@ export const verifyOTPAndLogin = async (
 
   // Check max attempts
   if (otpRecord.attempts >= env.OTP_MAX_ATTEMPTS) {
-    throw new BadRequestError(
-      "Maximum verification attempts exceeded. Please request a new OTP"
-    );
+    throw new BadRequestError("Maximum verification attempts exceeded. Please request a new OTP");
   }
 
   // Verify OTP
@@ -135,9 +123,7 @@ export const verifyOTPAndLogin = async (
 
     const remainingAttempts = env.OTP_MAX_ATTEMPTS - (otpRecord.attempts + 1);
 
-    throw new BadRequestError(
-      `Invalid OTP. ${remainingAttempts} attempt(s) remaining`
-    );
+    throw new BadRequestError(`Invalid OTP. ${remainingAttempts} attempt(s) remaining`);
   }
 
   // Mark OTP as verified
@@ -147,10 +133,7 @@ export const verifyOTPAndLogin = async (
     .where(eq(otpVerifications.id, otpRecord.id));
 
   // Create or update user
-  const [existingUser] = await db
-    .select()
-    .from(users)
-    .where(eq(users.phoneNumber, formattedPhone));
+  const [existingUser] = await db.select().from(users).where(eq(users.phoneNumber, formattedPhone));
 
   let user: User;
 
@@ -191,9 +174,7 @@ export const verifyOTPAndLogin = async (
   });
 
   // Delete OTP record (security best practice)
-  await db
-    .delete(otpVerifications)
-    .where(eq(otpVerifications.id, otpRecord.id));
+  await db.delete(otpVerifications).where(eq(otpVerifications.id, otpRecord.id));
 
   return {
     token,
@@ -225,10 +206,7 @@ export const resendOTP = async (phoneNumber: string) => {
     .select()
     .from(otpVerifications)
     .where(
-      and(
-        eq(otpVerifications.phoneNumber, formattedPhone),
-        gte(otpVerifications.createdAt, since)
-      )
+      and(eq(otpVerifications.phoneNumber, formattedPhone), gte(otpVerifications.createdAt, since))
     );
 
   if (recentOTPs.length >= env.OTP_MAX_REQUESTS) {

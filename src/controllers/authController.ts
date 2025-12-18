@@ -31,11 +31,7 @@ export const getUserById = ({ params }: { params: { id: string } }) => {
 /**
  * POST - Create new user
  */
-export const createUser = ({
-  body,
-}: {
-  body: { name: string; email: string };
-}) => {
+export const createUser = ({ body }: { body: { name: string; email: string } }) => {
   // Check if email already exists
   const existingUser = mockUsers.find((u) => u.email === body.email);
   if (existingUser) {
@@ -72,9 +68,7 @@ export const updateUser = ({
 
   // Check if email already exists (if updating email)
   if (body.email) {
-    const existingUser = mockUsers.find(
-      (u) => u.email === body.email && u.id !== userId
-    );
+    const existingUser = mockUsers.find((u) => u.email === body.email && u.id !== userId);
     if (existingUser) {
       throw new ConflictError("Email already in use by another user");
     }

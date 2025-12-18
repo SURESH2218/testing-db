@@ -1,9 +1,5 @@
 import { Elysia, t } from "elysia";
-import {
-  sendOTPHandler,
-  verifyOTPHandler,
-  resendOTPHandler,
-} from "../controllers/otpController";
+import { sendOTPHandler, verifyOTPHandler, resendOTPHandler } from "../controllers/otpController";
 
 /**
  * Phone number validation schema
@@ -66,4 +62,3 @@ const otpRoutes = new Elysia({ prefix: "/otp" })
   });
 
 export default otpRoutes;
-

@@ -6,12 +6,7 @@ import { env } from "../config/env.config";
  * Global error handler for Elysia
  * Converts all errors to standardized error response format
  */
-export const globalErrorHandler = ({
-  code,
-  error,
-  set,
-  path,
-}: any): ErrorResponse => {
+export const globalErrorHandler = ({ code, error, set, path }: any): ErrorResponse => {
   console.error("Error occurred:", error);
 
   // Handle custom AppError instances

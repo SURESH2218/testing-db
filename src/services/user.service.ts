@@ -24,14 +24,9 @@ export const getUserById = async (id: string): Promise<User> => {
 /**
  * Get user by phone number
  */
-export const getUserByPhone = async (
-  phoneNumber: string
-): Promise<User | null> => {
+export const getUserByPhone = async (phoneNumber: string): Promise<User | null> => {
   try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.phoneNumber, phoneNumber));
+    const [user] = await db.select().from(users).where(eq(users.phoneNumber, phoneNumber));
     return user || null;
   } catch (error) {
     throw new DatabaseError("Failed to fetch user by phone", error);
@@ -53,10 +48,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 /**
  * Update user
  */
-export const updateUser = async (
-  id: string,
-  userData: Partial<NewUser>
-): Promise<User> => {
+export const updateUser = async (id: string, userData: Partial<NewUser>): Promise<User> => {
   try {
     const [updatedUser] = await db
       .update(users)

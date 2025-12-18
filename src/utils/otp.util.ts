@@ -23,10 +23,7 @@ export const hashOTP = async (otp: string): Promise<string> => {
 /**
  * Verify OTP against hash
  */
-export const verifyOTP = async (
-  otp: string,
-  hash: string
-): Promise<boolean> => {
+export const verifyOTP = async (otp: string, hash: string): Promise<boolean> => {
   return await Bun.password.verify(otp, hash);
 };
 
