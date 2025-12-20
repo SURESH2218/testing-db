@@ -4,27 +4,19 @@ import * as organizationsService from "../services/organizations.service";
 import type { SuccessResponse } from "../types/response.types";
 
 interface CreateOrganizationBody {
-  name: string;
-  description?: string;
-  website?: string;
-  logoUrl?: string;
-  industry?: string;
-  size?: string;
-  location?: string;
+  title: string;
+  description: string;
+  type: "non-profit" | "for-profit" | "ngo" | "public" | "private" | "ppp";
+  city: string;
+  logo?: string;
 }
 
 interface UpdateOrganizationBody {
-  name?: string;
+  title?: string;
   description?: string;
-  website?: string;
-  logoUrl?: string;
-  industry?: string;
-  size?: string;
-  location?: string;
-}
-
-interface OrganizationParams {
-  id: string;
+  type?: "non-profit" | "for-profit" | "ngo" | "public" | "private" | "ppp";
+  city?: string;
+  logo?: string;
 }
 
 interface AuthenticatedContext extends Context {
@@ -52,20 +44,20 @@ export const getAllOrganizations = async (): Promise<SuccessResponse> => {
 };
 
 export const getOrganizationById = async (context: Context): Promise<SuccessResponse> => {
-  const params = context.params as OrganizationParams;
-  const organization = await organizationsService.getOrganizationById(params.id);
+  const { id } = context.params as { id: string };
+  const organization = await organizationsService.getOrganizationById(id);
   return successResponse(organization, "Organization fetched successfully");
 };
 
 export const updateOrganization = async (context: Context): Promise<SuccessResponse> => {
-  const params = context.params as OrganizationParams;
+  const { id } = context.params as { id: string };
   const body = context.body as UpdateOrganizationBody;
-  const organization = await organizationsService.updateOrganization(params.id, body);
+  const organization = await organizationsService.updateOrganization(id, body);
   return successResponse(organization, "Organization updated successfully");
 };
 
 export const deleteOrganization = async (context: Context): Promise<SuccessResponse> => {
-  const params = context.params as OrganizationParams;
-  await organizationsService.deleteOrganization(params.id);
+  const { id } = context.params as { id: string };
+  await organizationsService.deleteOrganization(id);
   return messageResponse("Organization deleted successfully");
 };

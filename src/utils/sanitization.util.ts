@@ -30,18 +30,6 @@ export const sanitizeMarkdown = (markdown: string): string => {
 };
 
 /**
- * Validate URL format
- */
-export const isValidUrl = (url: string): boolean => {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.protocol === "http:" || urlObj.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
-
-/**
  * Validate S3 URL specifically
  */
 export const isValidS3Url = (url: string, bucketName: string, region: string): boolean => {

@@ -73,7 +73,10 @@ export const requireOnboarding = async (context: AuthContext): Promise<AuthConte
  */
 export const authPlugin = (app: Elysia) => {
   return app.derive(async (context: Context) => {
-    await authenticate(context as AuthContext);
-    return context;
+    const authContext = await authenticate(context as AuthContext);
+    return {
+      user: authContext.user!,
+      userId: authContext.userId!,
+    };
   });
 };

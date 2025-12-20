@@ -20,9 +20,11 @@ export const users = pgTable(
     phoneNumber: varchar("phone_number", { length: 20 }).notNull().unique(),
     phoneVerified: boolean("phone_verified").default(false).notNull(),
     name: varchar("name", { length: 255 }),
+    displayName: varchar("display_name", { length: 255 }),
+    username: varchar("username", { length: 50 }).unique(),
     email: varchar("email", { length: 255 }).unique(),
     emailVerified: boolean("email_verified").default(false).notNull(),
-    password: varchar("password", { length: 255 }),
+    profileImage: varchar("profile_image", { length: 500 }),
     role: userRoleEnum("role").default("student").notNull(),
     domainId: uuid("domain_id").references(() => domains.id),
     onboardingComplete: boolean("onboarding_complete").default(false).notNull(),
@@ -34,6 +36,7 @@ export const users = pgTable(
   (table) => ({
     roleIdx: index("users_role_idx").on(table.role),
     domainIdIdx: index("users_domain_id_idx").on(table.domainId),
+    isActiveIdx: index("users_is_active_idx").on(table.isActive),
   })
 );
 

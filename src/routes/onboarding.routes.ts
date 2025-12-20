@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { authenticate } from "../middlewares/auth.middleware";
+import { authPlugin } from "../middlewares/auth.middleware";
 import {
   updateBasicInfoHandler,
   updateProfileHandler,
@@ -8,19 +8,40 @@ import {
   completeOnboardingHandler,
   getOnboardingStatusHandler,
 } from "../controllers/onboardingController";
+import {
+  addOrUpdateSocialLinksHandler,
+  getSocialLinksHandler,
+} from "../controllers/userProfileLinksController";
 
 const onboardingRoutes = new Elysia({ prefix: "/onboarding" })
-  .derive(authenticate)
+  .use(authPlugin)
   .post("/basic-info", updateBasicInfoHandler, {
     body: t.Object({
-      name: t.String({ minLength: 2, maxLength: 255, description: "Full name" }),
+      displayName: t.String({
+        minLength: 2,
+        maxLength: 255,
+        description: "Display name (shown publicly)",
+      }),
+      username: t.String({
+        minLength: 3,
+        maxLength: 30,
+        pattern: "^[a-z0-9_-]+$",
+        description: "Unique username (lowercase, alphanumeric, underscore, dash only)",
+      }),
       email: t.String({ format: "email", description: "Email address" }),
-      password: t.String({ minLength: 8, maxLength: 100, description: "Password (min 8 chars)" }),
+      profileImage: t.Optional(
+        t.String({
+          format: "uri",
+          maxLength: 500,
+          description: "Profile image URL from S3 (optional)",
+        })
+      ),
     }),
     detail: {
       tags: ["Onboarding"],
       summary: "Update basic user info",
-      description: "Update user's name, email, and password. User ID is extracted from JWT token.",
+      description:
+        "Update user's display name, username, email, and profile image. User ID is extracted from JWT token.",
       security: [{ BearerAuth: [] }],
     },
   })
@@ -35,7 +56,7 @@ const onboardingRoutes = new Elysia({ prefix: "/onboarding" })
     }),
     detail: {
       tags: ["Onboarding"],
-      summary: "Update user profile",
+      summary: "Update user domain and skills",
       description: "Update user's domain and skills. User ID is extracted from JWT token.",
       security: [{ BearerAuth: [] }],
     },
@@ -85,6 +106,44 @@ const onboardingRoutes = new Elysia({ prefix: "/onboarding" })
       tags: ["Onboarding"],
       summary: "Add work experience",
       description: "Add work experience to user profile. User ID is extracted from JWT token.",
+      security: [{ BearerAuth: [] }],
+    },
+  })
+  .post("/profile-links", addOrUpdateSocialLinksHandler, {
+    body: t.Object({
+      linkedinUrl: t.Optional(
+        t.String({ maxLength: 500, description: "LinkedIn profile URL (optional)" })
+      ),
+      githubUrl: t.Optional(
+        t.String({ maxLength: 500, description: "GitHub profile URL (optional)" })
+      ),
+      behanceUrl: t.Optional(
+        t.String({ maxLength: 500, description: "Behance profile URL (optional)" })
+      ),
+      portfolioUrl: t.Optional(
+        t.String({ maxLength: 500, description: "Portfolio website URL (optional)" })
+      ),
+      personalWebsite: t.Optional(
+        t.String({ maxLength: 500, description: "Personal website URL (optional)" })
+      ),
+      twitterUrl: t.Optional(
+        t.String({ maxLength: 500, description: "Twitter/X profile URL (optional)" })
+      ),
+    }),
+    detail: {
+      tags: ["Onboarding"],
+      summary: "Add or update profile links",
+      description:
+        "Add or update professional profile and portfolio links. User ID is extracted from JWT token.",
+      security: [{ BearerAuth: [] }],
+    },
+  })
+  .get("/profile-links", getSocialLinksHandler, {
+    detail: {
+      tags: ["Onboarding"],
+      summary: "Get profile links",
+      description:
+        "Get user's professional profile and portfolio links. User ID is extracted from JWT token.",
       security: [{ BearerAuth: [] }],
     },
   })

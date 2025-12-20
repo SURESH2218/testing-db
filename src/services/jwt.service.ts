@@ -1,3 +1,5 @@
+import { Elysia } from "elysia";
+import { jwt } from "@elysiajs/jwt";
 import { env } from "../config/env.config";
 import { UnauthorizedError } from "../utils/errors.util";
 
@@ -8,45 +10,46 @@ export interface JWTPayload {
   userId: string;
   phoneNumber: string;
   phoneVerified: boolean;
-  iat?: number;
-  exp?: number;
 }
 
 /**
- * Generate JWT token for user
- * Using simple base64 encoding for dev mode
- * In production, use proper JWT library
+ * JWT instance
  */
-export const generateToken = async (payload: Omit<JWTPayload, "iat" | "exp">): Promise<string> => {
-  const tokenData = {
-    ...payload,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
-  };
+const app = new Elysia().use(
+  jwt({
+    name: "jwt",
+    secret: env.JWT_SECRET,
+    exp: env.JWT_EXPIRES_IN,
+  })
+);
 
-  // Simple base64 encoding for dev mode
-  return Buffer.from(JSON.stringify(tokenData)).toString("base64");
+const jwtMethods = app.decorator.jwt;
+
+/**
+ * Generate JWT token
+ */
+export const generateToken = async (payload: JWTPayload): Promise<string> => {
+  return await jwtMethods.sign(payload as any);
 };
 
 /**
- * Verify and decode JWT token
+ * Verify JWT token
  */
 export const verifyToken = async (token: string): Promise<JWTPayload> => {
   try {
-    // Decode base64 token
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
-    const payload = JSON.parse(decoded) as JWTPayload;
+    const payload = await jwtMethods.verify(token);
 
-    // Check expiration
-    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
-      throw UnauthorizedError("Token expired");
+    if (!payload) {
+      throw UnauthorizedError("Invalid token");
     }
 
-    if (!payload.userId || !payload.phoneNumber) {
+    const { userId, phoneNumber, phoneVerified } = payload as any;
+
+    if (!userId || !phoneNumber) {
       throw UnauthorizedError("Invalid token payload");
     }
 
-    return payload;
+    return { userId, phoneNumber, phoneVerified };
   } catch (error: any) {
     if (error.statusCode && error.errorCode) {
       throw error;

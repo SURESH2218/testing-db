@@ -9,32 +9,54 @@ import { sanitizeString } from "../utils/sanitization.util";
 
 export const updateBasicInfo = async (
   userId: string,
-  name: string,
+  displayName: string,
+  username: string,
   email: string,
-  password: string
+  profileImage?: string
 ) => {
   const sanitizedEmail = email.trim().toLowerCase();
+  const sanitizedUsername = username.trim().toLowerCase();
 
-  const [existingUser] = await db.select().from(users).where(eq(users.email, sanitizedEmail));
+  // Check if email already exists
+  const [existingEmailUser] = await db.select().from(users).where(eq(users.email, sanitizedEmail));
 
-  if (existingUser && existingUser.id !== userId) {
+  if (existingEmailUser && existingEmailUser.id !== userId) {
     throw ConflictError("Email already in use");
   }
 
-  const hashedPassword = await Bun.password.hash(password, {
-    algorithm: "bcrypt",
-    cost: 10,
-  });
+  // Check if username already exists
+  const [existingUsernameUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.username, sanitizedUsername));
+
+  if (existingUsernameUser && existingUsernameUser.id !== userId) {
+    throw ConflictError("Username already taken");
+  }
+
+  // Validate username format (alphanumeric, underscore, dash only)
+  const usernameRegex = /^[a-z0-9_-]{3,30}$/;
+  if (!usernameRegex.test(sanitizedUsername)) {
+    throw BadRequestError(
+      "Username must be 3-30 characters and contain only letters, numbers, underscores, and dashes"
+    );
+  }
+
+  const updateData: any = {
+    displayName: sanitizeString(displayName),
+    username: sanitizedUsername,
+    email: sanitizedEmail,
+    onboardingStep: 2,
+    updatedAt: new Date(),
+  };
+
+  if (profileImage) {
+    updateData.profileImage = profileImage;
+  }
 
   const [updatedUser] = await db
     .update(users)
-    .set({
-      name: sanitizeString(name),
-      email: sanitizedEmail,
-      password: hashedPassword,
-      onboardingStep: 2,
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(users.id, userId))
     .returning();
 
@@ -44,7 +66,8 @@ export const updateBasicInfo = async (
 
   return {
     userId: updatedUser.id,
-    name: updatedUser.name,
+    displayName: updatedUser.displayName,
+    username: updatedUser.username,
     email: updatedUser.email,
     onboardingStep: updatedUser.onboardingStep,
   };
@@ -213,10 +236,11 @@ export const getOnboardingStatus = async (userId: string) => {
 
   const steps = [
     user.phoneVerified,
-    user.name && user.email,
+    user.displayName && user.username && user.email,
     user.domainId,
     user.onboardingStep >= 4,
     user.onboardingStep >= 5,
+    user.onboardingStep >= 6,
   ];
 
   const completedSteps = steps.filter(Boolean).length;
@@ -224,17 +248,19 @@ export const getOnboardingStatus = async (userId: string) => {
 
   const stepNames = [];
   if (user.phoneVerified) stepNames.push("phone_verified");
-  if (user.name && user.email) stepNames.push("basic_info");
+  if (user.displayName && user.username && user.email) stepNames.push("basic_info");
   if (user.domainId) stepNames.push("profile");
   if (user.onboardingStep >= 4) stepNames.push("education");
   if (user.onboardingStep >= 5) stepNames.push("experience");
+  if (user.onboardingStep >= 6) stepNames.push("profile_links");
 
   const pendingSteps = [];
   if (!user.phoneVerified) pendingSteps.push("phone_verified");
-  if (!user.name || !user.email) pendingSteps.push("basic_info");
+  if (!user.displayName || !user.username || !user.email) pendingSteps.push("basic_info");
   if (!user.domainId) pendingSteps.push("profile");
   if (user.onboardingStep < 4) pendingSteps.push("education");
   if (user.onboardingStep < 5) pendingSteps.push("experience");
+  if (user.onboardingStep < 6) pendingSteps.push("profile_links");
 
   return {
     userId: user.id,

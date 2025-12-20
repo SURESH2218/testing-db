@@ -7,14 +7,14 @@ import { getDomainsHandler, getSkillsHandler } from "../controllers/optionsContr
 const optionsRoutes = new Elysia()
   .get("/domains", getDomainsHandler, {
     detail: {
-      tags: ["Options"],
+      tags: ["Domains & Skills"],
       summary: "Get all domains",
       description: "Fetch all available domains for user selection",
     },
   })
   .get("/skills", getSkillsHandler, {
     detail: {
-      tags: ["Options"],
+      tags: ["Domains & Skills"],
       summary: "Get all skills",
       description: "Fetch all available skills for user selection",
     },

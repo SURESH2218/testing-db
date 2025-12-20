@@ -4,9 +4,10 @@ import { successResponse } from "../utils/response.util";
 import type { SuccessResponse } from "../types/response.types";
 
 interface UpdateBasicInfoBody {
-  name: string;
+  displayName: string;
+  username: string;
   email: string;
-  password: string;
+  profileImage?: string;
 }
 
 interface UpdateProfileBody {
@@ -17,45 +18,35 @@ interface UpdateProfileBody {
 interface AddEducationBody {
   institution: string;
   degree: string;
-  fieldOfStudy?: string;
-  startDate: string;
-  endDate?: string;
+  fieldOfStudy: string;
+  startYear: number;
+  endYear?: number;
   current?: boolean;
 }
 
 interface AddExperienceBody {
+  title: string;
   company: string;
-  position: string;
-  description?: string;
+  location?: string;
   startDate: string;
   endDate?: string;
   current?: boolean;
+  description?: string;
 }
 
-interface AuthenticatedContext extends Context {
-  user: {
-    id: string;
-    phoneNumber: string;
-    role: string;
-  };
-}
-
-export const updateBasicInfoHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const updateBasicInfoHandler = async (context: any): Promise<SuccessResponse> => {
   const body = context.body as UpdateBasicInfoBody;
   const result = await onboardingService.updateBasicInfo(
     context.user.id,
-    body.name,
+    body.displayName,
+    body.username,
     body.email,
-    body.password
+    body.profileImage
   );
   return successResponse(result, "Basic info updated successfully");
 };
 
-export const updateProfileHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const updateProfileHandler = async (context: any): Promise<SuccessResponse> => {
   const body = context.body as UpdateProfileBody;
   const result = await onboardingService.updateProfile(
     context.user.id,
@@ -65,32 +56,24 @@ export const updateProfileHandler = async (
   return successResponse(result, "Profile updated successfully");
 };
 
-export const addEducationHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const addEducationHandler = async (context: any): Promise<SuccessResponse> => {
   const body = context.body as AddEducationBody;
   const result = await onboardingService.addEducation(context.user.id, body);
   return successResponse(result, "Education added successfully");
 };
 
-export const addExperienceHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const addExperienceHandler = async (context: any): Promise<SuccessResponse> => {
   const body = context.body as AddExperienceBody;
   const result = await onboardingService.addExperience(context.user.id, body);
   return successResponse(result, "Experience added successfully");
 };
 
-export const completeOnboardingHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const completeOnboardingHandler = async (context: any): Promise<SuccessResponse> => {
   const result = await onboardingService.completeOnboarding(context.user.id);
   return successResponse(result, "Onboarding completed successfully");
 };
 
-export const getOnboardingStatusHandler = async (
-  context: AuthenticatedContext
-): Promise<SuccessResponse> => {
+export const getOnboardingStatusHandler = async (context: any): Promise<SuccessResponse> => {
   const result = await onboardingService.getOnboardingStatus(context.user.id);
   return successResponse(result);
 };

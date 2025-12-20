@@ -33,7 +33,7 @@ app.use(
       },
       tags: [
         { name: "Authentication", description: "OTP-based authentication endpoints" },
-        { name: "Options", description: "Get available domains and skills" },
+        { name: "Domains & Skills", description: "Get available domains and skills" },
         { name: "Onboarding", description: "User onboarding flow endpoints" },
         { name: "Admin - Organizations", description: "Manage organizations" },
         { name: "Admin - Opportunities", description: "Manage job/internship opportunities" },
@@ -60,6 +60,7 @@ app.use(
 );
 
 // Global error handler
+// @ts-ignore
 app.onError(globalErrorHandler);
 
 // CORS middleware

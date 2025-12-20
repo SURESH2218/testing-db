@@ -168,7 +168,7 @@ export const verifyOTPAndLogin = async (phoneNumber: string, otp: string, otpId:
   }
 
   // Check if user is new (for onboarding flow)
-  const isNewUser = !user.name || !user.email || !user.onboardingComplete;
+  const isNewUser = !user.displayName || !user.username || !user.email || !user.onboardingComplete;
 
   // Generate JWT token
   const token = await generateToken({

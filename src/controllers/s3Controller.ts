@@ -6,7 +6,7 @@ import type { SuccessResponse } from "../types/response.types";
 interface PresignedUrlBody {
   fileName: string;
   fileType: string;
-  folder?: string;
+  folder: string;
 }
 
 export const getPresignedUrl = async (context: Context): Promise<SuccessResponse> => {
